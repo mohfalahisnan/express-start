@@ -1,7 +1,6 @@
+import config from "@/config";
 import { logger } from "@/server";
 import { z } from "zod";
-
-const SENSITIVE_KEYS = ["password", "token", "secret", "accessToken", "refreshToken", "apiKey", "authorization"];
 
 const ServiceActivityLogSchema = z.object({
 	serviceName: z.string(),
@@ -33,7 +32,7 @@ function sanitizeArgs(args: any[]): any[] {
 		if (value && typeof value === "object") {
 			const clone: Record<string, any> = {};
 			for (const key in value) {
-				if (SENSITIVE_KEYS.includes(key)) {
+				if (config.SENSITIVE_KEYS.includes(key)) {
 					clone[key] = "[REDACTED]";
 				} else {
 					clone[key] = redact(value[key]);
