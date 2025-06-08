@@ -9,7 +9,7 @@ export const healthCheckRegistry = new OpenAPIRegistry();
 
 healthCheckRegistry.registerPath({
 	method: "get",
-	path: "/healthCheck",
+	path: "/v1/healthCheck",
 	tags: ["Health Check"],
 	responses: createApiResponse(z.null(), "Success"),
 });

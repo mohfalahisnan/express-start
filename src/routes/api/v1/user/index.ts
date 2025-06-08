@@ -15,7 +15,7 @@ userRegistry.register("User", UserSchema);
 
 userRegistry.registerPath({
 	method: "get",
-	path: "/user",
+	path: "/v1/user",
 	tags: ["User"],
 	responses: createApiResponse(z.array(UserSchema), "Success"),
 });

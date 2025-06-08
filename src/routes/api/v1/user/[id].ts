@@ -7,7 +7,7 @@ import { userRegistry } from ".";
 
 userRegistry.registerPath({
 	method: "get",
-	path: "/user/{id}",
+	path: "/v1/user/{id}",
 	tags: ["User"],
 	request: { params: GetUserSchema.shape.params },
 	responses: createApiResponse(UserSchema, "Success"),

@@ -1,0 +1,40 @@
+import { commonValidations } from "@/common/utils/commonValidation";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
+
+extendZodWithOpenApi(z);
+
+export const loginSchema = z.object({
+	email: z.string().email("Invalid email format"),
+	password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const resetPasswordSchema = z.object({
+	email: z.string().email("Invalid email format"),
+});
+
+export const changePasswordSchema = z.object({
+	oldPassword: z.string().min(6, "Password must be at least 6 characters"),
+	newPassword: z
+		.string()
+		.min(6, "Password must be at least 6 characters")
+		.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+		.regex(/[0-9]/, "Password must contain at least one number"),
+});
+
+export const sessionSchema = z.object({
+	id: z.string(),
+	username: z.string(),
+	email: z.string().email("Invalid email format"),
+	token: z.string(),
+	refreshToken: z.string(),
+});
+
+export const getSessionSchema = z.object({
+	params: z.object({ id: commonValidations.objectId }),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type SessionData = z.infer<typeof sessionSchema>;

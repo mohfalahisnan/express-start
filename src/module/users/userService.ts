@@ -1,3 +1,4 @@
+import { withActivityLogging } from "@/common/service/withActivityLogging";
 import { StatusCodes } from "http-status-codes";
 
 import { ServiceResponse } from "@/common/models/serviceResponse";
@@ -45,6 +46,22 @@ export class UserService {
 			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	// Retrieves a single user by their email
+	async findByEmail(email: string): Promise<ServiceResponse<User | null>> {
+		try {
+			const user = await this.userRepository.findByEmailAsync(email);
+			if (!user) {
+				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+			}
+			return ServiceResponse.success<User>("User found", user);
+		} catch (ex) {
+			const errorMessage = `Error finding user with email ${email}:, ${(ex as Error).message}`;
+			logger.error(errorMessage);
+			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
 
-export const userService = new UserService();
+const LoggedUserService = withActivityLogging(UserService, "UserService");
+export const userService = new LoggedUserService();
