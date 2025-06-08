@@ -1,9 +1,9 @@
+import { UserService, userService } from "@/module/users/userService";
 import type { Request, RequestHandler, Response } from "express";
 
-import { userService } from "@/module/users/userService";
-
+const userRepository = new UserService();
 class UserController {
-	public getUsers: RequestHandler = async (_req: Request, res: Response) => {
+	public getUsers: RequestHandler = async (req: Request, res: Response) => {
 		const serviceResponse = await userService.findAll();
 		res.status(serviceResponse.statusCode).send(serviceResponse);
 	};

@@ -1,10 +1,8 @@
-import { withActivityLogging } from "@/common/service/withActivityLogging";
-import { StatusCodes } from "http-status-codes";
-
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import type { User } from "@/module/users/userModel";
 import { UserRepository } from "@/module/users/userRepository";
 import { logger } from "@/server";
+import { StatusCodes } from "http-status-codes";
 
 export class UserService {
 	private userRepository: UserRepository;
@@ -14,6 +12,7 @@ export class UserService {
 	}
 
 	// Retrieves all users from the database
+
 	async findAll(): Promise<ServiceResponse<User[] | null>> {
 		try {
 			const users = await this.userRepository.findAllAsync();
@@ -63,5 +62,4 @@ export class UserService {
 	}
 }
 
-const LoggedUserService = withActivityLogging(UserService, "UserService");
-export const userService = new LoggedUserService();
+export const userService = new UserService();

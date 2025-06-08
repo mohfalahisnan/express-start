@@ -7,7 +7,7 @@
 		"lineWidth": 120,
 		"bracketSpacing": true
 	},
-	"organizeImports": { "enabled": true },
+	"organizeImports": { "enabled": true, "ignore": ["server.ts"] },
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -15,6 +15,9 @@
 			"suspicious": {
 				"noExplicitAny": "warn",
 				"noImplicitAnyLet": "warn"
+			},
+			"correctness": {
+				"noUnusedImports": "warn"
 			}
 		}
 	}

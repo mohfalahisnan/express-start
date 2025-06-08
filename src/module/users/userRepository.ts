@@ -1,23 +1,26 @@
 import type { User } from "@/module/users/userModel";
+import bcrypt from "bcryptjs";
+
+const salt = 10;
 
 export const users: User[] = [
 	{
 		id: 1,
-		name: "Alice",
-		email: "alice@example.com",
+		name: "Admin",
+		email: "admin@example.com",
 		age: 42,
 		createdAt: new Date(),
 		updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-		password: "",
+		password: bcrypt.hashSync("admin123", salt),
 	},
 	{
 		id: 2,
 		name: "Robert",
-		email: "Robert@example.com",
+		email: "robert@example.com",
 		age: 21,
 		createdAt: new Date(),
 		updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-		password: "",
+		password: bcrypt.hashSync("admin123", salt),
 	},
 ];
 

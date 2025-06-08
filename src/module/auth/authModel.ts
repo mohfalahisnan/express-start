@@ -9,6 +9,10 @@ export const loginSchema = z.object({
 	password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+export const postLoginSchema = z.object({
+	body: loginSchema,
+});
+
 export const resetPasswordSchema = z.object({
 	email: z.string().email("Invalid email format"),
 });
@@ -23,11 +27,8 @@ export const changePasswordSchema = z.object({
 });
 
 export const sessionSchema = z.object({
-	id: z.string(),
-	username: z.string(),
+	id: z.number(),
 	email: z.string().email("Invalid email format"),
-	token: z.string(),
-	refreshToken: z.string(),
 });
 
 export const getSessionSchema = z.object({

@@ -1,5 +1,6 @@
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { validateRequest } from "@/common/utils/httpHandlers";
+import { authMiddleware } from "@/module/auth/authMiddleware";
 import { userController } from "@/module/users/userController";
 import { GetUserSchema, UserSchema } from "@/module/users/userModel";
 import type { Handler } from "express";
@@ -13,4 +14,4 @@ userRegistry.registerPath({
 	responses: createApiResponse(UserSchema, "Success"),
 });
 
-export const get: Handler[] = [validateRequest(GetUserSchema), userController.getUser];
+export const get: Handler[] = [validateRequest(GetUserSchema), authMiddleware, userController.getUser];

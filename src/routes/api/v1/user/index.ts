@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 
+import { authMiddleware } from "@/module/auth/authMiddleware";
 import { userController } from "@/module/users/userController";
 import { UserSchema } from "@/module/users/userModel";
 
@@ -20,4 +21,4 @@ userRegistry.registerPath({
 	responses: createApiResponse(z.array(UserSchema), "Success"),
 });
 
-export const get: Handler = userController.getUsers;
+export const get: Handler[] = [authMiddleware, userController.getUsers];

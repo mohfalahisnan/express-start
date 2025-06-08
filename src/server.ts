@@ -1,9 +1,9 @@
+import { logger } from "@/common/logger";
 import path from "node:path";
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
-import { pino } from "pino";
 
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
@@ -12,7 +12,8 @@ import { env } from "@/common/utils/envConfig";
 import requestLogger from "./common/middleware/requestLogger";
 import createRouter from "./router";
 
-const logger = pino({ name: "server start" });
+logger.info("Starting server...");
+
 const app: Express = express();
 
 // Set the application to trust the reverse proxy
