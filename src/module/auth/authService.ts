@@ -6,10 +6,11 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 
+import { env } from "@/common/utils/envConfig";
 import { userService } from "../users/userService";
 import type { LoginInput, SessionData } from "./authModel";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const JWT_SECRET = env.JWT_SECRET || "your_jwt_secret";
 
 export class AuthService {
 	async login(input: LoginInput) {

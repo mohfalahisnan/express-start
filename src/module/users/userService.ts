@@ -12,7 +12,6 @@ export class UserService {
 	}
 
 	// Retrieves all users from the database
-
 	async findAll(): Promise<ServiceResponse<User[] | null>> {
 		try {
 			const users = await this.userRepository.findAllAsync();

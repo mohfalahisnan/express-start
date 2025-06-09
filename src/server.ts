@@ -1,5 +1,5 @@
 import { logger } from "@/common/logger";
-import path from "node:path";
+
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import cors from "cors";
 import express, { type Express } from "express";
@@ -10,7 +10,7 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 
 import { env } from "@/common/utils/envConfig";
 import requestLogger from "./common/middleware/requestLogger";
-import createRouter from "./router";
+import { routerV1 } from "./router/v1Router";
 
 logger.info("Starting server...");
 
@@ -30,8 +30,7 @@ app.use(rateLimiter);
 app.use(requestLogger);
 
 // Routes
-const routesDir = path.join(process.cwd(), "src", "routes");
-createRouter(app, { directory: routesDir });
+app.use("/v1", routerV1);
 
 // Swagger UI
 app.use(openAPIRouter);

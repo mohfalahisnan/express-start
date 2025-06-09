@@ -19,6 +19,7 @@ describe("userService", () => {
 			age: 42,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			password: "",
 		},
 		{
 			id: 2,
@@ -27,6 +28,7 @@ describe("userService", () => {
 			age: 21,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			password: "",
 		},
 	];
 
