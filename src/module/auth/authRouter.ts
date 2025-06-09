@@ -23,7 +23,7 @@ authRegistry.registerPath({
 	),
 });
 
-authRouter.get("/login", authController.login);
+authRouter.post("/login", authController.login);
 
 authRegistry.registerPath({
 	method: "post",
@@ -36,4 +36,4 @@ authRegistry.registerPath({
 	),
 });
 
-authRouter.get("/refresh", authController.refreshToken);
+authRouter.post("/refresh", authController.refreshToken);

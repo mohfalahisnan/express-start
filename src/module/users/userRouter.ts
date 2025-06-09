@@ -14,7 +14,7 @@ userRegistry.register("User", UserSchema);
 
 userRegistry.registerPath({
 	method: "get",
-	path: "/users",
+	path: "/v1/user",
 	tags: ["User"],
 	responses: createApiResponse(z.array(UserSchema), "Success"),
 });
@@ -23,7 +23,7 @@ userRouter.get("/", userController.getUsers);
 
 userRegistry.registerPath({
 	method: "get",
-	path: "/users/{id}",
+	path: "/v1/user/{id}",
 	tags: ["User"],
 	request: { params: GetUserSchema.shape.params },
 	responses: createApiResponse(UserSchema, "Success"),
