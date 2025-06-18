@@ -29,6 +29,7 @@ export const changePasswordSchema = z.object({
 export const sessionSchema = z.object({
 	id: z.number(),
 	email: z.string().email("Invalid email format"),
+	role: z.string(),
 });
 
 export const getSessionSchema = z.object({

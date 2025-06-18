@@ -12,6 +12,16 @@ import type { LoginInput, SessionData } from "./authModel";
 
 const JWT_SECRET = env.JWT_SECRET || "your_jwt_secret";
 
+export const PERMISSIONS = {
+	USER_CREATE: "user:create",
+	USER_EDIT: "user:edit",
+	USER_DELETE: "user:delete",
+	REPORT_VIEW: "report:view",
+	INVENTORY_MANAGE: "inventory:manage",
+} as const;
+
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
 export class AuthService {
 	async login(input: LoginInput) {
 		try {
@@ -29,6 +39,7 @@ export class AuthService {
 			const payload: SessionData = {
 				id: user.data.id,
 				email: user.data.email,
+				role: user.data.role?.name || "guest",
 			};
 
 			const result = {
@@ -70,6 +81,7 @@ export class AuthService {
 			const payload: SessionData = {
 				id: decoded.id,
 				email: decoded.email,
+				role: decoded.role,
 			};
 			const newToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 			return ServiceResponse.success("Token refreshed", { token: newToken }, StatusCodes.OK);

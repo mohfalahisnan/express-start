@@ -12,6 +12,7 @@ export const users: User[] = [
 		createdAt: new Date(),
 		updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
 		password: bcrypt.hashSync("admin123", salt),
+		roleId: 0,
 	},
 	{
 		id: 2,
@@ -21,6 +22,7 @@ export const users: User[] = [
 		createdAt: new Date(),
 		updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
 		password: bcrypt.hashSync("admin123", salt),
+		roleId: 0,
 	},
 ];
 
