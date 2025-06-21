@@ -27,38 +27,34 @@ export class AuthService {
 		try {
 			const user = await userService.findByEmail(input.email);
 			if (!user.success || !user.data) {
-				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+				return this.errorResponse("User not found", null, StatusCodes.NOT_FOUND);
 			}
 
 			const isPasswordValid = await this.comparePassword(input.password, user.data.password);
 
 			if (!isPasswordValid) {
-				return ServiceResponse.failure("Invalid password", null, StatusCodes.UNAUTHORIZED);
+				return this.errorResponse("Invalid password", null, StatusCodes.UNAUTHORIZED);
 			}
 
-			const payload: SessionData = {
+			const role = typeof user.data.role?.name === "string" ? user.data.role.name : "guest";
+			const rememberMe = !!input.rememberMe;
+			const payload: SessionData & { rememberMe: boolean } = {
 				id: user.data.id,
 				email: user.data.email,
-				role: user.data.role?.name || "guest",
+				role,
+				rememberMe,
 			};
 
+			const tokenExpiry = rememberMe ? "7d" : "24h";
+			const refreshExpiry = rememberMe ? "30d" : "7d";
 			const result = {
-				token: jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" }),
-				refreshToken: jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" }),
+				token: jwt.sign(payload, JWT_SECRET, { expiresIn: tokenExpiry }),
+				refreshToken: jwt.sign(payload, JWT_SECRET, { expiresIn: refreshExpiry }),
 			};
 
 			return ServiceResponse.success("Login successful", { result }, StatusCodes.OK);
 		} catch (error) {
-			if (error instanceof z.ZodError) {
-				logger.error(error.issues);
-				return ServiceResponse.failure("Validation failed", error.issues, StatusCodes.BAD_REQUEST);
-			}
-			if (error instanceof Error) {
-				logger.error(error.message);
-				return ServiceResponse.failure("An error occurred", error.message, StatusCodes.INTERNAL_SERVER_ERROR);
-			}
-			logger.error(`error login with email ${input.email}`, error);
-			return ServiceResponse.failure("An unexpected error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR);
+			return this.errorResponse("An unexpected error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR, error);
 		}
 	}
 
@@ -71,23 +67,44 @@ export class AuthService {
 			const decoded = jwt.verify(token, JWT_SECRET) as SessionData;
 			return ServiceResponse.success("Token verified", decoded, StatusCodes.OK);
 		} catch (error) {
-			return ServiceResponse.failure("Invalid token", null, StatusCodes.UNAUTHORIZED);
+			return this.errorResponse("Invalid token", null, StatusCodes.UNAUTHORIZED, error);
 		}
 	}
 
 	async refreshToken(refreshToken: string) {
 		try {
 			const decoded = jwt.verify(refreshToken, JWT_SECRET) as SessionData;
+			if (!decoded || !decoded.id || !decoded.email) {
+				return this.errorResponse("Invalid refresh token payload", null, StatusCodes.UNAUTHORIZED);
+			}
+			const user = await userService.findByEmail(decoded.email);
+			if (!user.success || !user.data) {
+				return this.errorResponse("User not found for refresh", null, StatusCodes.NOT_FOUND);
+			}
+			const role = typeof user.data.role?.name === "string" ? user.data.role.name : "guest";
 			const payload: SessionData = {
-				id: decoded.id,
-				email: decoded.email,
-				role: decoded.role,
+				id: user.data.id,
+				email: user.data.email,
+				role,
 			};
 			const newToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 			return ServiceResponse.success("Token refreshed", { token: newToken }, StatusCodes.OK);
 		} catch (error) {
-			return ServiceResponse.failure("Invalid refresh token", null, StatusCodes.UNAUTHORIZED);
+			return this.errorResponse("Invalid refresh token", null, StatusCodes.UNAUTHORIZED, error);
 		}
+	}
+
+	private errorResponse(message: string, data: any, statusCode: number, error?: any) {
+		if (error instanceof z.ZodError) {
+			logger.error(error.issues);
+			return ServiceResponse.failure(message, error.issues, StatusCodes.BAD_REQUEST);
+		}
+		if (error instanceof Error) {
+			logger.error(error.stack || error.message);
+		}
+		logger.error("Unknown error occurred during token refresh");
+
+		return ServiceResponse.failure(message, data, statusCode);
 	}
 }
 
