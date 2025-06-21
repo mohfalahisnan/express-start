@@ -4,14 +4,25 @@ import { UserRepository } from "@/module/users/userRepository";
 import { logger } from "@/server";
 import { StatusCodes } from "http-status-codes";
 
+/**
+ * Service class for handling user-related business logic and operations
+ */
 export class UserService {
 	private userRepository: UserRepository;
 
+	/**
+	 * Creates a new instance of UserService
+	 * @param repository - The user repository instance to use. Defaults to a new UserRepository instance
+	 */
 	constructor(repository: UserRepository = new UserRepository()) {
 		this.userRepository = repository;
 	}
 
-	// Retrieves all users from the database
+	/**
+	 * Retrieves all users from the database
+	 * @returns A ServiceResponse containing an array of users if found, null otherwise
+	 * @throws Will return a failure ServiceResponse if an error occurs
+	 */
 	async findAll(): Promise<ServiceResponse<User[] | null>> {
 		try {
 			const users = await this.userRepository.findAllAsync();
@@ -30,7 +41,12 @@ export class UserService {
 		}
 	}
 
-	// Retrieves a single user by their ID
+	/**
+	 * Retrieves a single user by their ID
+	 * @param id - The ID of the user to find
+	 * @returns A ServiceResponse containing the user if found, null otherwise
+	 * @throws Will return a failure ServiceResponse if an error occurs
+	 */
 	async findById(id: number): Promise<ServiceResponse<User | null>> {
 		try {
 			const user = await this.userRepository.findByIdAsync(id);
@@ -45,7 +61,12 @@ export class UserService {
 		}
 	}
 
-	// Retrieves a single user by their email
+	/**
+	 * Retrieves a single user by their email address
+	 * @param email - The email address of the user to find
+	 * @returns A ServiceResponse containing the user if found, null otherwise
+	 * @throws Will return a failure ServiceResponse if an error occurs
+	 */
 	async findByEmail(email: string): Promise<ServiceResponse<User | null>> {
 		try {
 			const user = await this.userRepository.findByEmailAsync(email);
@@ -58,6 +79,16 @@ export class UserService {
 			logger.error(errorMessage);
 			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Creates a new user
+	 * @param user - The user data to create
+	 * @returns A ServiceResponse containing the created user data
+	 * @todo Implement actual user creation logic
+	 */
+	async create(user: Partial<User>): Promise<ServiceResponse<Partial<User> | null>> {
+		return ServiceResponse.success<Partial<User>>("User created", user);
 	}
 }
 
