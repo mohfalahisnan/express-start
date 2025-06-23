@@ -96,7 +96,6 @@ export class UserService {
 			});
 			return ServiceResponse.success("User created", registeredUser, StatusCodes.CREATED);
 		} catch (ex) {
-			console.log(ex);
 			const errorMessage = `Error creating user: ${(ex as Error).message}`;
 			logger.error(errorMessage);
 			return ServiceResponse.failure("An error occurred while creating user.", null, StatusCodes.INTERNAL_SERVER_ERROR);

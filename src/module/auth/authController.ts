@@ -38,7 +38,6 @@ export class AuthController {
 	}
 
 	public async register(req: Request, res: Response): Promise<void> {
-		console.log("register");
 		const registerInput: RegisterInput = registerSchema.parse(req.body);
 		const serviceResponse = await authService.register(registerInput);
 		res.status(serviceResponse.statusCode).send(serviceResponse);

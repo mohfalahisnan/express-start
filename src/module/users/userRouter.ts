@@ -2,7 +2,7 @@ import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import express, { type Router } from "express";
 import { z } from "zod";
 
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
+import { createApiResponse, createRequestBody } from "@/api-docs/openAPIResponseBuilders";
 import { validateRequest } from "@/common/utils/httpHandlers";
 import { userController } from "./userController";
 import { GetUserSchema, UserSchema } from "./userModel";
@@ -35,15 +35,7 @@ userRegistry.registerPath({
 	method: "post",
 	path: "/v1/user",
 	tags: ["User"],
-	request: {
-		body: {
-			content: {
-				"application/json": {
-					schema: UserSchema,
-				},
-			},
-		},
-	},
+	request: createRequestBody(UserSchema),
 	responses: createApiResponse(UserSchema, "Success"),
 });
 

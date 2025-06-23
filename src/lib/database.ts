@@ -1,4 +1,5 @@
 import { env } from "@/common/utils/envConfig";
+import { logger } from "@/server";
 import mongoose from "mongoose";
 
 export class Database {
@@ -17,7 +18,7 @@ export class Database {
 
 	public async connect(): Promise<void> {
 		if (this.isConnected) {
-			console.log("MongoDB is already connected");
+			logger.info("MongoDB is already connected");
 			return;
 		}
 
@@ -25,19 +26,19 @@ export class Database {
 			await mongoose.connect(env.MONGO_URI);
 
 			this.isConnected = true;
-			console.log("MongoDB connected successfully");
+			logger.info("MongoDB connected successfully");
 
 			mongoose.connection.on("error", (error) => {
-				console.error("MongoDB connection error:", error);
+				logger.error("MongoDB connection error:", error);
 				this.isConnected = false;
 			});
 
 			mongoose.connection.on("disconnected", () => {
-				console.log("MongoDB disconnected");
+				logger.info("MongoDB disconnected");
 				this.isConnected = false;
 			});
 		} catch (error) {
-			console.error("Error connecting to MongoDB:", error);
+			logger.error("Error connecting to MongoDB:", error);
 			throw error;
 		}
 	}
@@ -50,9 +51,9 @@ export class Database {
 		try {
 			await mongoose.disconnect();
 			this.isConnected = false;
-			console.log("MongoDB disconnected successfully");
+			logger.info("MongoDB disconnected successfully");
 		} catch (error) {
-			console.error("Error disconnecting from MongoDB:", error);
+			logger.error("Error disconnecting from MongoDB:", error);
 			throw error;
 		}
 	}
