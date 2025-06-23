@@ -11,6 +11,8 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import { env } from "@/common/utils/envConfig";
 import requestLogger from "./common/middleware/requestLogger";
 import { routerV1 } from "./router/v1Router";
+import { auth } from "./lib/auth";
+import { toNodeHandler } from "better-auth/node";
 
 logger.info("Starting server...");
 
@@ -18,6 +20,8 @@ const app: Express = express();
 
 // Set the application to trust the reverse proxy
 app.set("trust proxy", true);
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // Middlewares
 app.use(express.json());

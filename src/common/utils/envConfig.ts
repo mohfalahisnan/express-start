@@ -17,6 +17,12 @@ const envSchema = z.object({
 	COMMON_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(1000),
 
 	JWT_SECRET: z.string().min(1).default("secret"),
+
+	BETTER_AUTH_SECRET: z.string().min(1).default("secret"),
+
+	BETTER_AUTH_URL: z.string().min(1).default("http://localhost:3000"),
+
+	MONGO_URI: z.string().min(1).default("mongodb://localhost:27017"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

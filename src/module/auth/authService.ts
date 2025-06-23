@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 
 import { env } from "@/common/utils/envConfig";
-import type { Role } from "../users/userModel";
+import { auth } from "@/lib/auth";
 import { userService } from "../users/userService";
-import type { LoginInput, SessionData } from "./authModel";
+import type { LoginInput, RegisterInput, SessionData } from "./authModel";
 
 const JWT_SECRET = env.JWT_SECRET || "your_jwt_secret";
 
@@ -34,68 +34,35 @@ export class AuthService {
 	 */
 	async login(input: LoginInput) {
 		try {
-			const user = await userService.findByEmail(input.email);
-			if (!user.success || !user.data) {
-				return this.errorResponse("User not found", null, StatusCodes.NOT_FOUND);
-			}
+			const result = await auth.api.signInEmail({
+				body: input,
+				asResponse: true,
+			});
 
-			const isPasswordValid = await this.comparePassword(input.password, user.data.password);
-
-			if (!isPasswordValid) {
-				return this.errorResponse("Invalid password", null, StatusCodes.UNAUTHORIZED);
-			}
-
-			const role = typeof user.data.role?.name === "string" ? user.data.role.name : "guest";
-			const rememberMe = !!input.rememberMe;
-			const payload: SessionData & { rememberMe: boolean } = {
-				id: user.data.id,
-				email: user.data.email,
-				role,
-				rememberMe,
-			};
-
-			const tokenExpiry = rememberMe ? "7d" : "24h";
-			const refreshExpiry = rememberMe ? "30d" : "7d";
-			const result = {
-				token: jwt.sign(payload, JWT_SECRET, { expiresIn: tokenExpiry }),
-				refreshToken: jwt.sign(payload, JWT_SECRET, { expiresIn: refreshExpiry }),
-			};
-
-			return ServiceResponse.success("Login successful", { result }, StatusCodes.OK);
+			return result;
 		} catch (error) {
 			return this.errorResponse("An unexpected error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR, error);
 		}
 	}
 
-	/**
-	 * Registers a new user in the system
-	 * @param input - User registration data containing email, password, optional name and role
-	 * @returns ServiceResponse containing the created user data or error message
-	 */
-	async register(input: { email: string; password: string; name?: string; role?: Role["id"] }) {
+	async register(data: RegisterInput) {
 		try {
-			const existingUser = await userService.findByEmail(input.email);
-			if (existingUser.success && existingUser.data) {
-				return this.errorResponse("Email already registered", null, StatusCodes.CONFLICT);
-			}
-
-			const hashedPassword = await this.hashPassword(input.password);
-			const newUser = await userService.create({
-				email: input.email,
-				password: hashedPassword,
-				name: input.name || "",
+			const { token, user } = await auth.api.signUpEmail({
+				body: data,
 			});
-
-			if (!newUser.success || !newUser.data) {
-				return this.errorResponse("Failed to register user", null, StatusCodes.INTERNAL_SERVER_ERROR);
+			return ServiceResponse.success("User registered", { token, user }, StatusCodes.CREATED);
+		} catch (error: any) {
+			if (error.statusCode === 422) {
+				return this.errorResponse(
+					"Validation failed",
+					error.body?.message || "Unprocessable Entity",
+					StatusCodes.UNPROCESSABLE_ENTITY,
+				);
 			}
-
-			return ServiceResponse.success("Registration successful", { user: newUser.data }, StatusCodes.CREATED);
-		} catch (error) {
 			return this.errorResponse(
-				"An unexpected error occurred during registration",
+				"Failed to register user",
 				null,
-				StatusCodes.INTERNAL_SERVER_ERROR,
+				error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
 				error,
 			);
 		}
@@ -141,6 +108,17 @@ export class AuthService {
 		} catch (error) {
 			return this.errorResponse("Invalid refresh token", null, StatusCodes.UNAUTHORIZED, error);
 		}
+	}
+
+	async me(req: Request) {
+		const session = await auth.api.getSession({
+			headers: req.headers,
+		});
+
+		if (!session) {
+			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+		}
+		return ServiceResponse.success("User found", session, StatusCodes.OK);
 	}
 
 	/**
