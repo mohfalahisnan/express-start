@@ -10,4 +10,16 @@ export default defineConfig({
 		restoreMocks: true,
 	},
 	plugins: [tsconfigPaths()],
+	build: {
+		target: "es2022",
+		outDir: "dist",
+		rollupOptions: {
+			output: {
+				format: "esm",
+			},
+		},
+	},
+	esbuild: {
+		target: "es2022",
+	},
 });
