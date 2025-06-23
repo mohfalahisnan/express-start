@@ -1,6 +1,6 @@
 import { ServiceResponse } from "@/common/models/serviceResponse";
-import type { User } from "@/module/users/userModel";
-import { UserRepository } from "@/module/users/userRepository";
+import { auth } from "@/lib/auth";
+import { type User, UserModel } from "@/module/users/userModel";
 import { logger } from "@/server";
 import { StatusCodes } from "http-status-codes";
 
@@ -8,14 +8,14 @@ import { StatusCodes } from "http-status-codes";
  * Service class for handling user-related business logic and operations
  */
 export class UserService {
-	private userRepository: UserRepository;
+	private userRepository: typeof UserModel;
 
 	/**
 	 * Creates a new instance of UserService
 	 * @param repository - The user repository instance to use. Defaults to a new UserRepository instance
 	 */
-	constructor(repository: UserRepository = new UserRepository()) {
-		this.userRepository = repository;
+	constructor() {
+		this.userRepository = UserModel;
 	}
 
 	/**
@@ -25,7 +25,7 @@ export class UserService {
 	 */
 	async findAll(): Promise<ServiceResponse<User[] | null>> {
 		try {
-			const users = await this.userRepository.findAllAsync();
+			const users = await this.userRepository.find();
 			if (!users || users.length === 0) {
 				return ServiceResponse.failure("No Users found", null, StatusCodes.NOT_FOUND);
 			}
@@ -47,9 +47,9 @@ export class UserService {
 	 * @returns A ServiceResponse containing the user if found, null otherwise
 	 * @throws Will return a failure ServiceResponse if an error occurs
 	 */
-	async findById(id: number): Promise<ServiceResponse<User | null>> {
+	async findById(id: string): Promise<ServiceResponse<User | null>> {
 		try {
-			const user = await this.userRepository.findByIdAsync(id);
+			const user = await this.userRepository.findById(id);
 			if (!user) {
 				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 			}
@@ -69,7 +69,7 @@ export class UserService {
 	 */
 	async findByEmail(email: string): Promise<ServiceResponse<User | null>> {
 		try {
-			const user = await this.userRepository.findByEmailAsync(email);
+			const user = await this.userRepository.findOne({ email });
 			if (!user) {
 				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 			}
@@ -87,8 +87,20 @@ export class UserService {
 	 * @returns A ServiceResponse containing the created user data
 	 * @todo Implement actual user creation logic
 	 */
-	async create(user: Partial<User>): Promise<ServiceResponse<Partial<User> | null>> {
-		return ServiceResponse.success<Partial<User>>("User created", user);
+	async create(user: User) {
+		try {
+			const registeredUser = await auth.api.signUpEmail({
+				body: {
+					...user,
+				},
+			});
+			return ServiceResponse.success("User created", registeredUser, StatusCodes.CREATED);
+		} catch (ex) {
+			console.log(ex);
+			const errorMessage = `Error creating user: ${(ex as Error).message}`;
+			logger.error(errorMessage);
+			return ServiceResponse.failure("An error occurred while creating user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
 	}
 }
 

@@ -30,3 +30,21 @@ userRegistry.registerPath({
 });
 
 userRouter.get("/:id", validateRequest(GetUserSchema), userController.getUser);
+
+userRegistry.registerPath({
+	method: "post",
+	path: "/v1/user",
+	tags: ["User"],
+	request: {
+		body: {
+			content: {
+				"application/json": {
+					schema: UserSchema,
+				},
+			},
+		},
+	},
+	responses: createApiResponse(UserSchema, "Success"),
+});
+
+userRouter.post("/", userController.createUser);
