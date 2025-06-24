@@ -74,3 +74,12 @@ authRegistry.registerPath({
 });
 
 authRouter.post("/register", authController.register);
+
+authRegistry.registerPath({
+	method: "get",
+	path: "/v1/auth/google",
+	tags: ["Auth"],
+	responses: createApiResponse(z.object({ url: z.string() }), "Success"),
+});
+
+authRouter.get("/google", authController.google);

@@ -13,16 +13,17 @@ const envSchema = z.object({
 	CORS_ORIGIN: z.string().default("http://localhost:8080"),
 
 	COMMON_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(1000),
-
 	COMMON_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(1000),
 
 	JWT_SECRET: z.string().min(1).default("secret"),
 
 	BETTER_AUTH_SECRET: z.string().min(1).default("secret"),
-
-	BETTER_AUTH_URL: z.string().min(1).default("http://localhost:3000"),
+	BETTER_AUTH_URL: z.string().min(1).default("http://localhost:8080"),
 
 	MONGO_URI: z.string().min(1).default("mongodb://localhost:27017"),
+
+	GOOGLE_CLIENT_ID: z.string().min(1).default("client_id"),
+	GOOGLE_CLIENT_SECRET: z.string().min(1).default("client_secret"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

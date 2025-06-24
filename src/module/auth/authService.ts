@@ -40,6 +40,19 @@ export class AuthService {
 		}
 	}
 
+	async loginWithGoogle() {
+		try {
+			const result = await auth.api.signInSocial({
+				body: {
+					provider: "google",
+				},
+			});
+			return ServiceResponse.success("Login with google generated", result.url, StatusCodes.CREATED);
+		} catch (error) {
+			return this.errorResponse("An unexpected error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR, error);
+		}
+	}
+
 	async logout(req: Request) {
 		try {
 			const result = await auth.api.signOut({
