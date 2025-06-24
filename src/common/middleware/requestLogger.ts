@@ -34,7 +34,6 @@ const httpLogger = pinoHttp({
 	customLogLevel: (_req, res) => getLogLevel(res.statusCode),
 	customSuccessMessage: (req) => `${req.method} ${req.url} completed`,
 	customErrorMessage: (_req, res) => `Request failed with status code: ${res.statusCode}`,
-	// Only log response bodies in development
 	serializers: {
 		req: (req) => ({
 			method: req.method,

@@ -19,22 +19,18 @@ export class AuthController {
 		res.status(response.status).json(data);
 	}
 
-	public async validateToken(req: Request, res: Response): Promise<void> {
-		const token = req.headers?.cookie?.split("=")[1];
-		if (!token) {
-			throw new Error("No token provided");
+	public async logout(req: Request, res: Response): Promise<void> {
+		const response: any = await authService.logout(req as any);
+		// Forward all headers (including set-cookie) from response to Express
+		for (const [key, value] of response.headers.entries()) {
+			if (key.toLowerCase() === "set-cookie") {
+				res.append("Set-Cookie", value);
+			} else {
+				res.setHeader(key, value);
+			}
 		}
-		const result = await authService.verifyToken(token);
-		res.status(200).json(result);
-	}
-
-	public async refreshToken(req: Request, res: Response): Promise<void> {
-		const refreshToken = req.body.refreshToken;
-		if (!refreshToken) {
-			throw new Error("No refresh token provided");
-		}
-		const result = await authService.refreshToken(refreshToken);
-		res.status(200).json(result);
+		const data = await response.json();
+		res.status(response.status).json(data);
 	}
 
 	public async register(req: Request, res: Response): Promise<void> {
@@ -44,6 +40,7 @@ export class AuthController {
 	}
 
 	public async me(req: Request, res: Response): Promise<void> {
+		console.log(`me : ${req.user}`);
 		const session = await authService.me(req as any);
 		res.status(session.statusCode).send(session);
 	}

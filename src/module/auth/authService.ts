@@ -1,17 +1,12 @@
 import { ServiceResponse } from "@/common/models/serviceResponse";
 
 import { logger } from "@/server";
-import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-import jwt from "jsonwebtoken";
 import { z } from "zod";
 
-import { env } from "@/common/utils/envConfig";
 import { auth } from "@/lib/auth";
-import { userService } from "../users/userService";
-import type { LoginInput, RegisterInput, SessionData } from "./authModel";
-
-const JWT_SECRET = env.JWT_SECRET || "your_jwt_secret";
+import { APIError } from "better-auth/api";
+import type { LoginInput, RegisterInput } from "./authModel";
 
 export const PERMISSIONS = {
 	USER_CREATE: "user:create",
@@ -45,6 +40,18 @@ export class AuthService {
 		}
 	}
 
+	async logout(req: Request) {
+		try {
+			const result = await auth.api.signOut({
+				headers: req.headers,
+				asResponse: true,
+			});
+			return result;
+		} catch (error) {
+			return this.errorResponse("An unexpected error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR, error);
+		}
+	}
+
 	async register(data: RegisterInput) {
 		try {
 			const { token, user } = await auth.api.signUpEmail({
@@ -59,54 +66,13 @@ export class AuthService {
 					StatusCodes.UNPROCESSABLE_ENTITY,
 				);
 			}
+
 			return this.errorResponse(
 				"Failed to register user",
 				null,
 				error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
 				error,
 			);
-		}
-	}
-
-	/**
-	 * Verifies the validity of a JWT token
-	 * @param token - JWT token to verify
-	 * @returns ServiceResponse containing decoded token data or error message
-	 */
-	async verifyToken(token: string) {
-		try {
-			const decoded = jwt.verify(token, JWT_SECRET) as SessionData;
-			return ServiceResponse.success("Token verified", decoded, StatusCodes.OK);
-		} catch (error) {
-			return this.errorResponse("Invalid token", null, StatusCodes.UNAUTHORIZED, error);
-		}
-	}
-
-	/**
-	 * Generates a new access token using a refresh token
-	 * @param refreshToken - Refresh token to use for generating new access token
-	 * @returns ServiceResponse containing new access token or error message
-	 */
-	async refreshToken(refreshToken: string) {
-		try {
-			const decoded = jwt.verify(refreshToken, JWT_SECRET) as SessionData;
-			if (!decoded || !decoded.id || !decoded.email) {
-				return this.errorResponse("Invalid refresh token payload", null, StatusCodes.UNAUTHORIZED);
-			}
-			const user = await userService.findByEmail(decoded.email);
-			if (!user.success || !user.data) {
-				return this.errorResponse("User not found for refresh", null, StatusCodes.NOT_FOUND);
-			}
-			const role = typeof user.data.role?.name === "string" ? user.data.role.name : "guest";
-			const payload: SessionData = {
-				id: user.data.id,
-				email: user.data.email,
-				role,
-			};
-			const newToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-			return ServiceResponse.success("Token refreshed", { token: newToken }, StatusCodes.OK);
-		} catch (error) {
-			return this.errorResponse("Invalid refresh token", null, StatusCodes.UNAUTHORIZED, error);
 		}
 	}
 
@@ -134,31 +100,19 @@ export class AuthService {
 			logger.error(error.issues);
 			return ServiceResponse.failure(message, error.issues, StatusCodes.BAD_REQUEST);
 		}
+		if (error instanceof APIError) {
+			return ServiceResponse.failure(
+				message,
+				error.message || "Internal Server Error",
+				error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+			);
+		}
 		if (error instanceof Error) {
 			logger.error(error.stack || error.message);
 		}
-		logger.error("Unknown error occurred during token refresh");
+		logger.error(message);
 
 		return ServiceResponse.failure(message, data, statusCode);
-	}
-
-	/**
-	 * Hashes a plain text password
-	 * @param password - Plain text password to hash
-	 * @returns Promise resolving to hashed password
-	 */
-	private async hashPassword(password: string): Promise<string> {
-		return bcrypt.hash(password, 10);
-	}
-
-	/**
-	 * Compares a plain text password with a hashed password
-	 * @param plainPassword - Plain text password to compare
-	 * @param hashedPassword - Hashed password to compare against
-	 * @returns Promise resolving to boolean indicating if passwords match
-	 */
-	private async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
-		return bcrypt.compare(plainPassword, hashedPassword);
 	}
 }
 
