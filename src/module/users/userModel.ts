@@ -1,8 +1,7 @@
+import { zodTimestamp } from "@/common/models/timestamp";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
-
-import { zTimestamp } from "@/common/models/timestamp";
 import mongoose from "mongoose";
+import { z } from "zod";
 import { PERMISSIONS, PermissionSchema } from "../rbac/rbacModel";
 
 extendZodWithOpenApi(z);
@@ -16,15 +15,16 @@ export const RoleSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
-export const UserSchema = z.object({
-	id: z.number(),
-	name: z.string(),
-	email: z.string().email(),
-	emailVerified: z.boolean(),
-	password: z.string(),
-	role: z.any(),
-	zTimestamp,
-});
+export const UserSchema = z
+	.object({
+		id: z.number(),
+		name: z.string(),
+		email: z.string().email(),
+		emailVerified: z.boolean(),
+		password: z.string(),
+		role: z.any(),
+	})
+	.extend(zodTimestamp);
 
 // Input Validation for 'GET users/:id' endpoint
 export const GetUserSchema = z.object({
@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema<User>(
 		},
 	},
 	{
-		timestamps: true, // This will automatically add createdAt and updatedAt fields
+		timestamps: true,
 	},
 );
 

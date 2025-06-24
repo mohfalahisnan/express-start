@@ -32,8 +32,10 @@ const httpLogger = pinoHttp({
 	logger,
 	genReqId: (req) => req.headers["x-request-id"] as string,
 	customLogLevel: (_req, res) => getLogLevel(res.statusCode),
-	customSuccessMessage: (req) => `${req.method} ${req.url} completed`,
-	customErrorMessage: (_req, res) => `Request failed with status code: ${res.statusCode}`,
+	customSuccessMessage: (req: Request) =>
+		`${req.method} : ${req.baseUrl}${req.url} completed from ${req.session?.user.email ?? "Guest"}`,
+	customErrorMessage: (req, res) =>
+		`${req.method} : ${req.baseUrl}${req.url} Request failed with status code: ${res.statusCode} from ${req.session?.user.email ?? "Guest"}`,
 	serializers: {
 		req: (req) => ({
 			method: req.method,

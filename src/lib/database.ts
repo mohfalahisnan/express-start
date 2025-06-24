@@ -61,6 +61,10 @@ export class Database {
 	public getConnection(): typeof mongoose {
 		return mongoose;
 	}
+
+	public seed(): void {
+		// TODO: Implement seed logic
+	}
 }
 
 export const db = await Database.getInstance();

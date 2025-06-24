@@ -5,25 +5,24 @@ import { z } from "zod";
 import { createApiResponse, createRequestBody } from "@/api-docs/openAPIResponseBuilders";
 import express, { type Router } from "express";
 import { authController } from "./authController";
-import { authMiddleware } from "./authMiddleware";
 import { loginSchema, registerSchema, sessionSchema } from "./authModel";
 
 export const authRegistry = new OpenAPIRegistry();
+export const betterAuthRegistry = new OpenAPIRegistry();
 export const authRouter: Router = express.Router();
 
+betterAuthRegistry.register("Better-Auth", registerSchema);
 authRegistry.register("Auth", loginSchema);
 
-authRouter.use(authMiddleware);
-
 // better-auth routes
-authRegistry.registerPath({
+betterAuthRegistry.registerPath({
 	method: "post",
 	path: "/api/auth/sign-up/email",
 	tags: ["Auth"],
 	request: createRequestBody(registerSchema),
 	responses: createApiResponse(sessionSchema, "Success"),
 });
-authRegistry.registerPath({
+betterAuthRegistry.registerPath({
 	method: "post",
 	path: "/api/auth/sign-in/email",
 	tags: ["Auth"],
@@ -33,7 +32,7 @@ authRegistry.registerPath({
 		"Success",
 	),
 });
-authRegistry.registerPath({
+betterAuthRegistry.registerPath({
 	method: "post",
 	path: "/api/auth/sign-out",
 	tags: ["Auth"],
