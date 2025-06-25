@@ -40,14 +40,12 @@ export class AuthController {
 	}
 
 	public async me(req: Request, res: Response): Promise<void> {
-		console.log(`me : ${req.user}`);
 		const session = await authService.me(req as any);
 		res.status(session.statusCode).send(session);
 	}
 
 	public async google(req: Request, res: Response): Promise<void> {
 		const data = await authService.loginWithGoogle();
-		console.log(data.data);
 		res.status(data.statusCode).send(data);
 	}
 }

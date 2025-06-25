@@ -1,7 +1,8 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { env } from "@/common/utils/envConfig";
 import { logger } from "@/server";
 import mongoose from "mongoose";
-
 export class Database {
 	private static instance: Database;
 	private isConnected = false;
@@ -62,8 +63,31 @@ export class Database {
 		return mongoose;
 	}
 
-	public seed(): void {
-		// TODO: Implement seed logic
+	public async seed(): Promise<void> {
+		await this.connect();
+		const Role = mongoose.model("Role");
+		const seedPath = path.resolve(process.cwd(), "seed.roles.json");
+		let rolesData;
+		try {
+			const file = await fs.readFile(seedPath, "utf-8");
+			rolesData = JSON.parse(file);
+		} catch (err) {
+			logger.error("Failed to read seed.roles.json:", err);
+			return;
+		}
+
+		for (const role of rolesData) {
+			const exists = await Role.findOne({ name: role.name });
+			if (!exists) {
+				await Role.create({
+					name: role.name,
+					permissions: role.permissions,
+				});
+				logger.info(`Seeded role: ${role.name}`);
+			} else {
+				logger.info(`Role already exists: ${role.name}`);
+			}
+		}
 	}
 }
 
