@@ -20,7 +20,7 @@ export class AuthController {
 	}
 
 	public async logout(req: Request, res: Response): Promise<void> {
-		const response: any = await authService.logout(req as any);
+		const response: any = await authService.logout(req);
 		// Forward all headers (including set-cookie) from response to Express
 		for (const [key, value] of response.headers.entries()) {
 			if (key.toLowerCase() === "set-cookie") {
@@ -40,7 +40,7 @@ export class AuthController {
 	}
 
 	public async me(req: Request, res: Response): Promise<void> {
-		const session = await authService.me(req as any);
+		const session = await authService.me(req);
 		res.status(session.statusCode).send(session);
 	}
 

@@ -6,17 +6,8 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { APIError } from "better-auth/api";
+import type { Request } from "express";
 import type { LoginInput, RegisterInput } from "./authModel";
-
-export const PERMISSIONS = {
-	USER_CREATE: "user:create",
-	USER_EDIT: "user:edit",
-	USER_DELETE: "user:delete",
-	REPORT_VIEW: "report:view",
-	INVENTORY_MANAGE: "inventory:manage",
-} as const;
-
-export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 /**
  * Service class handling authentication-related operations
@@ -56,7 +47,7 @@ export class AuthService {
 	async logout(req: Request) {
 		try {
 			const result = await auth.api.signOut({
-				headers: req.headers,
+				headers: req.headers as unknown as Headers,
 				asResponse: true,
 			});
 			return result;
@@ -91,13 +82,13 @@ export class AuthService {
 
 	async me(req: Request) {
 		const session = await auth.api.getSession({
-			headers: req.headers,
+			headers: req.headers as unknown as Headers,
 		});
 
 		if (!session) {
-			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+			return ServiceResponse.failure("Unauthorized", null, StatusCodes.UNAUTHORIZED);
 		}
-		return ServiceResponse.success("User found", session, StatusCodes.OK);
+		return ServiceResponse.success("Authorized", session, StatusCodes.OK);
 	}
 
 	/**

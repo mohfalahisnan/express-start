@@ -101,6 +101,22 @@ export class UserService {
 			return ServiceResponse.failure("An error occurred while creating user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	async getRole(id: string) {
+		try {
+			const user = await this.userRepository.findById(id).populate("role");
+			if (!user) {
+				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+			}
+
+			// TODO: Implement permissions logic
+			return ServiceResponse.success<User>("User found", user);
+		} catch (ex) {
+			const errorMessage = `Error finding user with id ${id}:, ${(ex as Error).message}`;
+			logger.error(errorMessage);
+			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
 
 export const userService = new UserService();

@@ -11,6 +11,7 @@ export type Role = z.infer<typeof RoleSchema>;
 export const RoleSchema = z.object({
 	id: z.number(),
 	name: z.string(),
+	isSystem: z.boolean().default(false),
 	permissions: z.array(PermissionSchema),
 });
 
@@ -40,6 +41,11 @@ const roleSchema = new mongoose.Schema<Role>({
 	name: {
 		type: String,
 		required: true,
+	},
+
+	isSystem: {
+		type: Boolean,
+		default: false,
 	},
 	permissions: [{ type: String, enum: PERMISSIONS, required: true }],
 });
