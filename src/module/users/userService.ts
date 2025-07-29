@@ -1,37 +1,31 @@
+import { logger } from "@/common/logger";
 import { ServiceResponse } from "@/common/models/serviceResponse";
+import type { User, UserWithRole } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { type User, UserModel } from "@/module/users/userModel";
-import { logger } from "@/server";
+import { userRepository } from "@/repositories/userRepository";
 import { StatusCodes } from "http-status-codes";
 
 /**
  * Service class for handling user-related business logic and operations
  */
 export class UserService {
-	private userRepository: typeof UserModel;
-
-	/**
-	 * Creates a new instance of UserService
-	 * @param repository - The user repository instance to use. Defaults to a new UserRepository instance
-	 */
-	constructor() {
-		this.userRepository = UserModel;
-	}
+	private userRepository = userRepository;
 
 	/**
 	 * Retrieves all users from the database
 	 * @returns A ServiceResponse containing an array of users if found, null otherwise
 	 * @throws Will return a failure ServiceResponse if an error occurs
 	 */
-	async findAll(): Promise<ServiceResponse<User[] | null>> {
+	async findAll(): Promise<ServiceResponse<UserWithRole[] | null>> {
 		try {
 			const users = await this.userRepository.find();
 			if (!users || users.length === 0) {
 				return ServiceResponse.failure("No Users found", null, StatusCodes.NOT_FOUND);
 			}
-			return ServiceResponse.success<User[]>("Users found", users);
+			return ServiceResponse.success<UserWithRole[]>("Users found", users);
 		} catch (ex) {
-			const errorMessage = `Error finding all users: $${(ex as Error).message}`;
+			console.log("Error finding all users:", ex);
+			const errorMessage = `Error finding all users: ${(ex as Error).message}`;
 			logger.error(errorMessage);
 			return ServiceResponse.failure(
 				"An error occurred while retrieving users.",
@@ -47,13 +41,13 @@ export class UserService {
 	 * @returns A ServiceResponse containing the user if found, null otherwise
 	 * @throws Will return a failure ServiceResponse if an error occurs
 	 */
-	async findById(id: string): Promise<ServiceResponse<User | null>> {
+	async findById(id: string): Promise<ServiceResponse<UserWithRole | null>> {
 		try {
 			const user = await this.userRepository.findById(id);
 			if (!user) {
 				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 			}
-			return ServiceResponse.success<User>("User found", user);
+			return ServiceResponse.success<UserWithRole>("User found", user);
 		} catch (ex) {
 			const errorMessage = `Error finding user with id ${id}:, ${(ex as Error).message}`;
 			logger.error(errorMessage);
@@ -73,7 +67,7 @@ export class UserService {
 			if (!user) {
 				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 			}
-			return ServiceResponse.success<User>("User found", user);
+			return ServiceResponse.success<UserWithRole>("User found", user);
 		} catch (ex) {
 			const errorMessage = `Error finding user with email ${email}:, ${(ex as Error).message}`;
 			logger.error(errorMessage);
@@ -92,6 +86,7 @@ export class UserService {
 			const registeredUser = await auth.api.signUpEmail({
 				body: {
 					...user,
+					password: user.password || "",
 				},
 			});
 			return ServiceResponse.success("User created", registeredUser, StatusCodes.CREATED);
@@ -104,15 +99,15 @@ export class UserService {
 
 	async getRole(id: string) {
 		try {
-			const user = await this.userRepository.findById(id).populate("role");
+			const user = await this.userRepository.findById(id);
 			if (!user) {
 				return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 			}
 
-			// TODO: Implement permissions logic
-			return ServiceResponse.success<User>("User found", user);
+			// Role is already populated in the repository query
+			return ServiceResponse.success<UserWithRole>("User found", user);
 		} catch (ex) {
-			const errorMessage = `Error finding user with id ${id}:, ${(ex as Error).message}`;
+			const errorMessage = `Error finding user with id ${id}: ${(ex as Error).message}`;
 			logger.error(errorMessage);
 			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}

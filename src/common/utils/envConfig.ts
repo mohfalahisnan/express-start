@@ -20,7 +20,7 @@ const envSchema = z.object({
 	BETTER_AUTH_SECRET: z.string().min(1).default("secret"),
 	BETTER_AUTH_URL: z.string().min(1).default("http://localhost:8080"),
 
-	MONGO_URI: z.string().min(1).default("mongodb://localhost:27017"),
+	DATABASE_URL: z.string().min(1).default("postgresql://localhost:5432/express_boilerplate"),
 
 	GOOGLE_CLIENT_ID: z.string().min(1).default("client_id"),
 	GOOGLE_CLIENT_SECRET: z.string().min(1).default("client_secret"),

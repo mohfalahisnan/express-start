@@ -1,17 +1,21 @@
 import { env } from "@/common/utils/envConfig";
 import { betterAuth } from "better-auth";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import type mongoose from "mongoose";
-import { db } from "./database";
-
-function getClient() {
-	return db.getConnection().connection.db as mongoose.mongo.Db;
-}
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "../db";
+import * as schema from "../db/schema";
 
 export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL,
-	database: mongodbAdapter(getClient()),
+	database: drizzleAdapter(db, {
+		provider: "pg",
+		schema: {
+			user: schema.users,
+			session: schema.sessions,
+			account: schema.accounts,
+			verification: schema.verifications,
+		},
+	}),
 	emailAndPassword: {
 		enabled: true,
 	},

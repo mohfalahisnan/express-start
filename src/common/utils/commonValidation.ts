@@ -6,6 +6,6 @@ export const commonValidations = {
 		.refine((data) => !Number.isNaN(Number(data)), "ID must be a numeric value")
 		.transform(Number)
 		.refine((num) => num > 0, "ID must be a positive number"),
-	objectId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId format"),
+	postgresId: z.coerce.number().int().positive("ID must be a positive integer"),
 	// ... other common validations
 };

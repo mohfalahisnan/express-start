@@ -1,6 +1,6 @@
 import { ServiceResponse } from "@/common/models/serviceResponse";
 
-import { logger } from "@/server";
+import { logger } from "@/common/logger";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 

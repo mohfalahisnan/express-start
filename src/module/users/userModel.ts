@@ -1,79 +1,42 @@
 import { zodTimestamp } from "@/common/models/timestamp";
+import type { Role as DrizzleRole, User as DrizzleUser } from "@/db/schema";
+import { PermissionSchema } from "@/module/rbac/rbacModel";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
-import mongoose from "mongoose";
 import { z } from "zod";
-import { PERMISSIONS, PermissionSchema } from "../rbac/rbacModel";
 
 extendZodWithOpenApi(z);
 
-// Role schema definition
-export type Role = z.infer<typeof RoleSchema>;
+// Role schema definition for API validation
 export const RoleSchema = z.object({
 	id: z.number(),
 	name: z.string(),
 	isSystem: z.boolean().default(false),
 	permissions: z.array(PermissionSchema),
+	createdAt: z.date().optional(),
+	updatedAt: z.date().optional(),
 });
 
-export type User = z.infer<typeof UserSchema>;
+// User schema definition for API validation
 export const UserSchema = z
 	.object({
 		id: z.number(),
 		name: z.string(),
 		email: z.string().email(),
-		emailVerified: z.boolean(),
+		emailVerified: z.boolean().default(false),
 		password: z.string(),
-		role: z.any(),
+		roleId: z.number().optional().nullable(),
+		role: RoleSchema.optional().nullable(),
 	})
 	.extend(zodTimestamp);
+
+// Export types from Drizzle schema
+export type User = DrizzleUser;
+export type Role = DrizzleRole;
 
 // Input Validation for 'GET users/:id' endpoint
 export const GetUserSchema = z.object({
 	params: z.object({ id: z.string() }),
 });
 
-const roleSchema = new mongoose.Schema<Role>({
-	id: {
-		type: Number,
-		required: true,
-		unique: true,
-	},
-	name: {
-		type: String,
-		required: true,
-	},
-
-	isSystem: {
-		type: Boolean,
-		default: false,
-	},
-	permissions: [{ type: String, enum: PERMISSIONS, required: true }],
-});
-export const RoleModel = mongoose.model<Role>("Role", roleSchema);
-
-const userSchema = new mongoose.Schema<User>(
-	{
-		name: {
-			type: String,
-			required: true,
-		},
-		email: {
-			type: String,
-			required: true,
-			unique: true,
-		},
-		password: {
-			type: String,
-			required: true,
-		},
-		role: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Role",
-		},
-	},
-	{
-		timestamps: true,
-	},
-);
-
-export const UserModel = mongoose.model<User>("User", userSchema, "user");
+// Mongoose models removed - using Drizzle ORM instead
+// Database operations are now handled through repositories

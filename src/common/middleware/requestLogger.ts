@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response, RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import pino from "pino";
 import pinoHttp from "pino-http";
@@ -56,4 +56,5 @@ const captureResponseBody = (req: Request, res: Response, next: NextFunction) =>
 	next();
 };
 
-export default [addRequestId, captureResponseBody, httpLogger];
+const requestLoggerMiddleware: RequestHandler[] = [addRequestId, captureResponseBody, httpLogger];
+export default requestLoggerMiddleware;

@@ -24,7 +24,7 @@ export const authMiddleware: Handler = async (req: Request, res, next): Promise<
 		// if user role is not found, set it to guest
 		if (req.session) {
 			const user = await userService.getRole(req.user as string);
-			if (user.data?.role) req.session.user.role = user.data.role;
+			if (user.data?.role) req.session.user.role = user.data.role.name;
 		}
 
 		next();

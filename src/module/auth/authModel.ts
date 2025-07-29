@@ -44,8 +44,8 @@ export const sessionSchema = z.object({
 	role: z.string(),
 });
 
-export const getSessionSchema = z.object({
-	params: z.object({ id: commonValidations.objectId }),
+export const GetUserByIdSchema = z.object({
+	params: z.object({ id: commonValidations.id }),
 });
 
 export const PostRegisterSchema = z.object({

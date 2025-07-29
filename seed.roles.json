@@ -1,6 +1,5 @@
 [
 	{
-		"id": 1,
 		"name": "admin",
 		"permissions": [
 			"user:read",
@@ -11,16 +10,17 @@
 			"role:create",
 			"role:update",
 			"role:delete"
-		]
+		],
+		"isSystem": true
 	},
 	{
-		"id": 2,
 		"name": "user",
-		"permissions": ["user:read"]
+		"permissions": ["user:read"],
+		"isSystem": true
 	},
 	{
-		"id": 3,
 		"name": "guest",
-		"permissions": []
+		"permissions": [],
+		"isSystem": true
 	}
 ]
