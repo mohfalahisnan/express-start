@@ -1,4 +1,4 @@
-import { zodTimestamp } from "@/common/models/timestamp";
+import { BaseSchema } from "@/common/models/base";
 import type { Role as DrizzleRole, User as DrizzleUser } from "@/db/schema";
 import { PermissionSchema } from "@/module/rbac/rbacModel";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
@@ -7,27 +7,23 @@ import { z } from "zod";
 extendZodWithOpenApi(z);
 
 // Role schema definition for API validation
-export const RoleSchema = z.object({
+export const RoleSchema = BaseSchema.extend({
 	id: z.number(),
 	name: z.string(),
 	isSystem: z.boolean().default(false),
 	permissions: z.array(PermissionSchema),
-	createdAt: z.date().optional(),
-	updatedAt: z.date().optional(),
 });
 
 // User schema definition for API validation
-export const UserSchema = z
-	.object({
-		id: z.number(),
-		name: z.string(),
-		email: z.string().email(),
-		emailVerified: z.boolean().default(false),
-		password: z.string(),
-		roleId: z.number().optional().nullable(),
-		role: RoleSchema.optional().nullable(),
-	})
-	.extend(zodTimestamp);
+export const UserSchema = BaseSchema.extend({
+	id: z.string(),
+	name: z.string(),
+	email: z.string().email(),
+	emailVerified: z.boolean().default(false),
+	password: z.string(),
+	roleId: z.number().optional().nullable(),
+	role: RoleSchema.optional().nullable(),
+});
 
 // Export types from Drizzle schema
 export type User = DrizzleUser;
