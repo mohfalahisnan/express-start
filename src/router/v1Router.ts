@@ -2,11 +2,13 @@ import { healthCheckRouter } from "@/common/healthCheck";
 import { authMiddleware } from "@/module/auth/authMiddleware";
 import { authRouter } from "@/module/auth/authRouter";
 import { userRouter } from "@/module/users/userRouter";
+import { demoRouter } from "@/module/demo/demoRouter";
 import express, { type Router } from "express";
 
 export const routerV1: Router = express.Router();
 
 routerV1.use("/health-check", healthCheckRouter);
+routerV1.use("/demo", demoRouter);
 
 // register all routers here
 routerV1.use(authMiddleware);

@@ -7,6 +7,7 @@ import helmet from "helmet";
 
 import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
+import sanitizeResponse from "@/common/middleware/sanitizeResponse";
 
 import { env } from "@/common/utils/envConfig";
 import requestLogger from "./common/middleware/requestLogger";
@@ -32,6 +33,9 @@ app.use(rateLimiter);
 
 // Request logging
 app.use(requestLogger);
+
+// Sanitize sensitive data from responses
+app.use(sanitizeResponse);
 
 // Routes
 app.use("/v1", routerV1);

@@ -18,6 +18,10 @@
 			},
 			"correctness": {
 				"noUnusedImports": "warn"
+			},
+			"style": {
+				"noNonNullAssertion": "warn",
+				"noParameterAssign": "warn"
 			}
 		}
 	}
