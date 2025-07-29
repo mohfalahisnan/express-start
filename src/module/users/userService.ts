@@ -2,7 +2,7 @@ import { logger } from "@/common/logger";
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import type { User, UserWithRole } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { userRepository } from "@/repositories/userRepository";
+import { userRepository } from "@/module/users/userRepository";
 import { StatusCodes } from "http-status-codes";
 
 /**

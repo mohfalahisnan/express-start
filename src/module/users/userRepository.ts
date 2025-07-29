@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { type NewUser, type User, type UserWithRole, roles, users } from "../db/schema";
-import { logger } from "../common/logger";
+import { logger } from "../../common/logger";
+import { db } from "../../db";
+import { type NewUser, type User, type UserWithRole, roles, users } from "../../db/schema";
+
+// since we are using drizzle-orm, we need to use the drizzle-orm methods to query the database and remove this repository
 
 export class UserRepository {
 	/**
@@ -69,7 +71,7 @@ export class UserRepository {
 				})
 				.from(users)
 				.leftJoin(roles, eq(users.roleId, roles.id))
-				.where(eq(users.id, userId))
+				.where(eq(users.id, id))
 				.limit(1);
 
 			return (result[0] as UserWithRole) || null;
@@ -108,7 +110,7 @@ export class UserRepository {
 				.where(eq(users.email, criteria.email))
 				.limit(1);
 
-			return (result[0] as User) || null;
+			return (result[0] as unknown as User) || null;
 		} catch (error) {
 			logger.error(`Error finding user by email ${criteria.email}:`, error);
 			throw error;
@@ -134,15 +136,10 @@ export class UserRepository {
 	 */
 	async updateById(id: string, updateData: Partial<NewUser>): Promise<User | null> {
 		try {
-			const userId = Number.parseInt(id, 10);
-			if (Number.isNaN(userId)) {
-				return null;
-			}
-
 			const result = await db
 				.update(users)
 				.set({ ...updateData, updatedAt: new Date() })
-				.where(eq(users.id, userId))
+				.where(eq(users.id, id))
 				.returning();
 
 			return (result[0] as User) || null;
@@ -157,12 +154,7 @@ export class UserRepository {
 	 */
 	async deleteById(id: string): Promise<boolean> {
 		try {
-			const userId = Number.parseInt(id, 10);
-			if (Number.isNaN(userId)) {
-				return false;
-			}
-
-			const result = await db.delete(users).where(eq(users.id, userId)).returning();
+			const result = await db.delete(users).where(eq(users.id, id)).returning();
 
 			return result.length > 0;
 		} catch (error) {

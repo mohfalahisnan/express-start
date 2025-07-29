@@ -4,6 +4,10 @@ import type { ZodError, ZodSchema } from "zod";
 
 import { ServiceResponse } from "@/common/models/serviceResponse";
 
+export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, res: Response) => {
+	return res.status(serviceResponse.statusCode).send(serviceResponse);
+};
+
 export const validateRequest = (schema: ZodSchema) => async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await schema.parseAsync({ body: req.body, query: req.query, params: req.params });

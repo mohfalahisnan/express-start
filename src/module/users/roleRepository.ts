@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { type NewRole, type Role, roles } from "../db/schema";
-import { logger } from "../common/logger";
+import { db } from "../../db";
+import { type NewRole, type Role, roles } from "../../db/schema";
+import { logger } from "../../common/logger";
 
 export class RoleRepository {
 	/**

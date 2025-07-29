@@ -70,6 +70,18 @@ The server will start at `http://localhost:8080`
 Once running, visit:
 - **Swagger UI**: `http://localhost:8080/api-docs`
 - **Health Check**: `http://localhost:8080/health-check`
+- **Dynamic API Health**: `http://localhost:8080/v1/dynamic/health`
+
+### Dynamic Router System
+
+The application includes a dynamic router system that automatically generates REST API endpoints for registered models:
+
+- **Base URL**: `/v1/dynamic/:model`
+- **Available Models**: `users`, `roles`
+- **Operations**: GET, POST, PUT, PATCH, DELETE
+- **Features**: Pagination, filtering, validation
+
+For detailed documentation, see [Dynamic Router README](./src/router/README.md).
 
 ## 🗄️ Database
 
