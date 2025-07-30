@@ -77,11 +77,15 @@ Once running, visit:
 The application includes a dynamic router system that automatically generates REST API endpoints for registered models:
 
 - **Base URL**: `/v1/dynamic/:model`
-- **Available Models**: `users`, `roles`
+- **Available Models**: `users`, `roles` (configured in `src/config.ts`)
 - **Operations**: GET, POST, PUT, PATCH, DELETE
-- **Features**: Pagination, filtering, validation
+- **Features**: Pagination, filtering, validation, centralized configuration
+- **Configuration**: Models are registered in `MODEL_REGISTRY` within `src/config.ts`
 
-For detailed documentation, see [Dynamic Router README](./src/router/README.md).
+For detailed documentation, see:
+- [Dynamic Router Configuration Guide](./docs/dynamic-router-configuration.md)
+- [Dynamic Router API Documentation](./docs/dynamic-router-api.md)
+- [Dynamic Router README](./src/router/README.md)
 
 ## 🗄️ Database
 
@@ -188,6 +192,15 @@ pnpm test:cov
 # Run tests in watch mode
 pnpm test --watch
 ```
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Documentation Index](./docs/README.md)** - Complete documentation overview
+- **[Dynamic Router Configuration](./docs/dynamic-router-configuration.md)** - Setup and configuration guide
+- **[Dynamic Router API](./docs/dynamic-router-api.md)** - Complete API reference
+- **[Technical Implementation](./src/router/README.md)** - Implementation details
 
 ## 🔧 Development
 

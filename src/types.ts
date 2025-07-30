@@ -1,4 +1,7 @@
-import type { Express, Router, Handler } from "express";
+import type { PgTable } from "drizzle-orm/pg-core";
+import type { Express, Handler, Router } from "express";
+import type { z } from "zod";
+import type { AppService } from "./common/service/appService";
 
 export type ExpressLike = Express | Router;
 
@@ -67,3 +70,10 @@ export interface Route {
 	priority: number;
 	exports: Exports;
 }
+
+export type ModelConfig = {
+	table: PgTable;
+	service: AppService<any>;
+	createSchema: z.ZodObject<any>;
+	updateSchema: z.ZodObject<any>;
+};

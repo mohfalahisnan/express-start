@@ -136,52 +136,69 @@ To add a new model to the dynamic router system:
 
 ### 1. Using the Registry (Recommended)
 
-Add your model to the `MODEL_REGISTRY` in `dynamicRouter.ts`:
+Add your model to the `MODEL_REGISTRY` in `src/config.ts`:
 
 ```typescript
-const MODEL_REGISTRY = {
-  // ... existing models
-  products: {
-    table: products,
-    service: new AppService(db, products),
-    createSchema: z.object({
-      name: z.string().min(1),
-      price: z.number().positive(),
-      description: z.string().optional(),
-      categoryId: z.number().optional()
-    }),
-    updateSchema: z.object({
-      name: z.string().min(1).optional(),
-      price: z.number().positive().optional(),
-      description: z.string().optional(),
-      categoryId: z.number().optional()
-    })
-  }
+// In src/config.ts
+const config: Config = {
+  // ... other config properties
+  MODEL_REGISTRY: {
+    // ... existing models
+    products: {
+      table: products,
+      service: new AppService(db, products),
+      createSchema: CreateProductSchema.shape.body,
+      updateSchema: UpdateProductSchema.shape.body,
+    },
+  },
 };
-```
 
-### 2. Using the Register Function
-
-Alternatively, use the `registerModel` function:
-
-```typescript
-import { registerModel } from '@/router/dynamicRouter';
-import { products } from '@/db/schema';
-
-registerModel('products', {
-  table: products,
-  createSchema: z.object({
+// Don't forget to create the schemas in your model file
+// In src/module/products/productModel.ts
+export const CreateProductSchema = z.object({
+  body: z.object({
     name: z.string().min(1),
     price: z.number().positive(),
-    description: z.string().optional()
-  }),
-  updateSchema: z.object({
+    description: z.string().optional(),
+    categoryId: z.number().optional()
+  })
+});
+
+export const UpdateProductSchema = z.object({
+  body: z.object({
     name: z.string().min(1).optional(),
     price: z.number().positive().optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    categoryId: z.number().optional()
   })
 });
 ```
+
+### 2. Configuration Structure
+
+The MODEL_REGISTRY is now centralized in the config file with the following structure:
+
+```typescript
+// src/config.ts
+interface Config {
+  // ... other properties
+  MODEL_REGISTRY: Record<string, ModelConfig>;
+}
+
+// src/types.ts
+export interface ModelConfig {
+  table: any; // Drizzle table definition
+  service: AppService<any>; // Service instance
+  createSchema: z.ZodSchema; // Zod schema for creation
+  updateSchema: z.ZodSchema; // Zod schema for updates
+}
+```
+
+This centralized approach provides:
+- **Better organization**: All model configurations in one place
+- **Type safety**: Full TypeScript support with proper typing
+- **Easier maintenance**: Single source of truth for model registry
+- **Import efficiency**: Reduced circular dependencies
 
 ## Validation Schemas
 
@@ -360,10 +377,11 @@ To migrate from static routes to dynamic routes:
 
 ### Common Issues
 
-1. **Model Not Found**: Ensure the model is registered in `MODEL_REGISTRY`
-2. **Validation Errors**: Check Zod schema definitions
+1. **Model Not Found**: Ensure the model is registered in `MODEL_REGISTRY` in `src/config.ts`
+2. **Validation Errors**: Check Zod schema definitions in your model files
 3. **Database Errors**: Verify table schema matches the service expectations
 4. **Type Errors**: Ensure proper TypeScript types are defined
+5. **Import Errors**: Make sure to import the config properly: `import config from '@/config'`
 
 ### Debug Mode
 

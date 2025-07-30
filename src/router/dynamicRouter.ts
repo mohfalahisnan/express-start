@@ -1,53 +1,12 @@
 import { logger } from "@/common/logger";
 import { ServiceResponse } from "@/common/models/serviceResponse";
-import { AppService } from "@/common/service/appService";
 import { handleServiceResponse } from "@/common/utils/httpHandlers";
-import { db } from "@/db";
-import { roles, users } from "@/db/schema";
+import config, { type ModelName } from "@/config";
 import { type NextFunction, type Request, type Response, Router } from "express";
-import { z } from "zod";
-
-
-// TODO: move to config instead of declaring here, and also create a typing with Zod
-
-// Define available models and their corresponding tables
-const MODEL_REGISTRY = {
-	users: {
-		table: users,
-		service: new AppService(db, users),
-		createSchema: z.object({
-			name: z.string().min(1),
-			email: z.string().email(),
-			password: z.string().min(6),
-			roleId: z.number().optional(),
-		}),
-		updateSchema: z.object({
-			name: z.string().min(1).optional(),
-			email: z.string().email().optional(),
-			password: z.string().min(6).optional(),
-			roleId: z.number().optional(),
-		}),
-	},
-	roles: {
-		table: roles,
-		service: new AppService(db, roles),
-		createSchema: z.object({
-			name: z.string().min(1),
-			isSystem: z.boolean().optional(),
-			permissions: z.array(z.string()).optional(),
-		}),
-		updateSchema: z.object({
-			name: z.string().min(1).optional(),
-			isSystem: z.boolean().optional(),
-			permissions: z.array(z.string()).optional(),
-		}),
-	},
-} as const;
-
-type ModelName = keyof typeof MODEL_REGISTRY;
 
 // Middleware to validate model exists
 const validateModel = (req: Request, res: Response, next: NextFunction) => {
+	const { MODEL_REGISTRY } = config;
 	const { model } = req.params;
 
 	if (!MODEL_REGISTRY[model as ModelName]) {
@@ -66,7 +25,7 @@ const validateModel = (req: Request, res: Response, next: NextFunction) => {
 declare global {
 	namespace Express {
 		interface Request {
-			modelConfig?: (typeof MODEL_REGISTRY)[ModelName];
+			modelConfig?: (typeof config.MODEL_REGISTRY)[ModelName];
 			modelName?: string;
 		}
 	}
@@ -319,7 +278,7 @@ dynamicRouter.delete("/:model/:id", validateModel, async (req: Request, res: Res
  * Get list of available models
  */
 export function getAvailableModels(): string[] {
-	return Object.keys(MODEL_REGISTRY);
+	return Object.keys(config.MODEL_REGISTRY);
 }
 
 /**

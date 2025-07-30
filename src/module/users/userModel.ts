@@ -34,5 +34,23 @@ export const GetUserSchema = z.object({
 	params: z.object({ id: z.string() }),
 });
 
+export const CreateUserSchema = z.object({
+	body: UserSchema.omit({ id: true }),
+});
+
+export const UpdateUserSchema = z.object({
+	params: z.object({ id: z.string() }),
+	body: UserSchema.omit({ id: true }),
+});
+
+export const CreateRoleSchema = z.object({
+	body: RoleSchema.omit({ id: true }),
+});
+
+export const UpdateRoleSchema = z.object({
+	params: z.object({ id: z.number() }),
+	body: RoleSchema.omit({ id: true }),
+});
+
 // Mongoose models removed - using Drizzle ORM instead
 // Database operations are now handled through repositories

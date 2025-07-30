@@ -1,9 +1,16 @@
+import { AppService } from "./common/service/appService";
+import { db } from "./db";
+import { roles, users } from "./db/schema";
+import { CreateRoleSchema, CreateUserSchema, UpdateRoleSchema, UpdateUserSchema } from "./module/users/userModel";
+import type { ModelConfig } from "./types";
+
 interface Config {
 	VALID_FILE_EXTENSIONS: string[];
 	INVALID_NAME_SUFFIXES: string[];
 	IGNORE_PREFIX_CHAR: string;
 	DEFAULT_METHOD_EXPORTS: string[];
 	SENSITIVE_KEYS: string[];
+	MODEL_REGISTRY: Record<string, ModelConfig>;
 }
 
 /**
@@ -22,6 +29,22 @@ const config: Config = {
 	IGNORE_PREFIX_CHAR: "_",
 	DEFAULT_METHOD_EXPORTS: ["get", "post", "put", "patch", "delete", "head", "connect", "options", "trace"],
 	SENSITIVE_KEYS: ["password", "token", "secret", "accessToken", "refreshToken", "apiKey", "authorization"],
+	MODEL_REGISTRY: {
+		users: {
+			table: users,
+			service: new AppService(db, users),
+			createSchema: CreateUserSchema.shape.body,
+			updateSchema: UpdateUserSchema.shape.body,
+		},
+		roles: {
+			table: roles,
+			service: new AppService(db, roles),
+			createSchema: CreateRoleSchema.shape.body,
+			updateSchema: UpdateRoleSchema.shape.body,
+		},
+	},
 };
+
+export type ModelName = keyof typeof config.MODEL_REGISTRY;
 
 export default config;
