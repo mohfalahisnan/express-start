@@ -31,7 +31,7 @@ declare global {
 	}
 }
 
-export const dynamicRouter = Router();
+export const dynamicRouter: Router = Router();
 
 /**
  * GET /v1/dynamic/:model
