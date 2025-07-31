@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-
 import { type LoginInput, type RegisterInput, loginSchema, registerSchema } from "./authModel";
 import { authService } from "./authService";
 
@@ -44,7 +43,7 @@ export class AuthController {
 		res.status(session.statusCode).send(session);
 	}
 
-	public async google(req: Request, res: Response): Promise<void> {
+	public async google(_req: Request, res: Response): Promise<void> {
 		const data = await authService.loginWithGoogle();
 		res.status(data.statusCode).send(data);
 	}

@@ -2,6 +2,7 @@ import { healthCheckRouter } from "@/common/healthCheck";
 import { authMiddleware } from "@/module/auth/authMiddleware";
 import { authRouter } from "@/module/auth/authRouter";
 import { demoRouter } from "@/module/demo/demoRouter";
+import { rbacMiddleware } from "@/module/rbac/rbacMiddleware";
 import { userRouter } from "@/module/users/userRouter";
 import { dynamicRouter } from "@/router/dynamicRouter";
 import express, { type Router } from "express";
@@ -16,5 +17,6 @@ routerV1.use("/dynamic", dynamicRouter);
 
 // register all routers here
 routerV1.use(authMiddleware);
+routerV1.use(rbacMiddleware);
 routerV1.use("/auth", authRouter);
 routerV1.use("/user", userRouter);
